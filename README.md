@@ -15,7 +15,7 @@ Content will appear here once I have gained sufficient vitriol...
 * What _someone_ and the other party are discussing.
 
 #### So what does this mean?
-Well, the Exit can do everything the VPN can do but it can't do it to you consistently or in a targeted manner. You are less targetable than Tor. Your VPN can target you, and do so consistently.
+Well, the Exit can do everything the VPN can do but it can't do it to you consistently or in a targeted manner. You are less targetable on Tor. Your VPN can target you, and do so consistently.
 
 ### But what about...?
 - The VPN can be trusted, I know because _magic_! So it won't tamper with my connection.
