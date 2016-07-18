@@ -98,7 +98,7 @@ Trying to make Application A look like Application B is folly, for a sufficientl
 
 ## "Transparent Proxy" and "Tor Router"
 ##### Anonabox, Invizbox, Invizbox Go, iCloak, TorFi, Cloak, iCloak, AVG Chime, and many, many more...are all full of shit.
-##### (By which I mean they're lying profiteers selling you snakeoil and vapourware and even the FLOSS ones mostly do it wrong)
+##### (By which I mean they're lying profiteers selling you snakeoil and vapourware and even the FLOSS ones are mostly doing it wrong)
 ### Why are all these "Tor Routers" bad?
 First of all they all set out to make it "easy", to this end they created an N to 1 mapping for a transproxy enforcing packet filter, so that multiple people could connect to the device and use it at once. To do this they made it connect _out_ over ethernet and provide a wireless network for clients. This is the first problem.
 
