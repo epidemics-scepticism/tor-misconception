@@ -89,9 +89,48 @@ Applications will snitch on you. Wittingly or unwittingly, directly or indirectl
 
 They'll tell people what timezone you're in, what time you think it is in your timezone, what specific version of a bit of software you're running, what operating system you're running, what _version_ of the operating system you're running, your computers name, your users name, if you've talked to the other party before, when you talked, who else you've talked with...the list of possible data leaks is endless.
 
-All of these possible variations, while not all of the examples above are applicable to all applications, create an inconsistent anonymity set. It has a texture, if someone were to run their _(cyber-)_finger over it, it would present bumps and recesses. We don't want that, we want our anonymity set to feel as smooth, homogenous, and indistinguishable as possible to any probing _(cyber-)_fingers.
+All of these possible variations, while not all of the examples above are applicable to all applications, create an inconsistent anonymity set. It has a texture, if someone were to run their *(cyber-)*finger over it, it would present bumps and recesses. We don't want that, we want our anonymity set to feel as smooth, homogenous, and indistinguishable as possible to any probing *(cyber-)*fingers.
 
 To this end, we should where possible use as similar as possible a set of tools. This creates a one-size-doesn't-quite-fit-all scenario which causes discomfort but if you're serious about anonymity, this is important.
 
 ### Faulty camouflage
 Trying to make Application A look like Application B is folly, for a sufficiently complex application (looking at you, HTTP clients). I see a lot of crawler doing stupid things when crawling onions, like setting their user-agents to be the Tor Browser user-agent (which they invariably forget to update) and little do they know that their _behaviour_ makes them stand out. Do you use a Keep-Alive connection? Which order do you request the resources in? What kinds of content-encoding do you accept? What kinds of content encoding do you accept _in a given context_? These all distinguish Application A from Application B.
+
+## "Transparent Proxy" and "Tor Router"
+##### Anonabox, Invizbox, Invizbox Go, iCloak, TorFi, Cloak, iCloak, AVG Chime, and many, many more...are all full of shit.
+##### (By which I mean they're lying profiteers selling you snakeoil and vapourware and even the FLOSS ones mostly do it wrong)
+### Why are all these "Tor Routers" bad?
+First of all they all set out to make it "easy", to this end they created an N to 1 mapping for a transproxy enforcing packet filter, so that multiple people could connect to the device and use it at once. To do this they made it connect _out_ over ethernet and provide a wireless network for clients. This is the first problem.
+
+### Wireless cryptography is straight outta the 90s
+Without even getting into the problems with WEP and it's IV re-use (No one should be using WEP, no one should have been using WEP for anything for at least the last 10 years). WPA-PSK and WPA2-PSK also has a problem. PSK is the standard setup that's used by pretty much all home networks and the one thats most likely used by Tor Router type devices. It is where you have some key that is shared amongst users, and therein lies the rub. The shared secret is the _only_ shared secret value, no public key cryptography is involved.
+
+This means first of all that there is _no_ forward-secrecy. If Eve can capture the 4-way handshake for the WPA connection, she can decrypt all the traffic for that session, similarly anyone who you are sharing the connection with can decrypt everyone elses traffic as they all have the same pre-shared key, the only values required to computer your session key that is used to encrypt your traffic are visible to anyone within range.
+
+Secondly, and critically this weak cryptography is all that is protecting your traffic _before_ it reaches the Tor network. You are totally unprotected at this stage, if you're using a .onion service which uses HTTP the "end-to-end" of the cryptography is starting at the other side of the wireless connection, you are broadcasting this data without any protection. Similarly even if you use TLS things like SNI will indicate what hostnames you're connecting to.
+
+Thirdly, this lack of forward secrecy means that anyone who has recorded previous wireless sessions will be able to retroactively decrypt them if at some point in the future they are able to recover the pre-shared key.
+
+WEP is similarly flawed, except worse in every possible way.
+
+#### But I picked a strong passphrase!
+Alright but there may be a chink in the armor that is still attackable. The PSK, no matter how strong, may only being protected by a 8 digit pin, of which 1 is a checksum. So it is providing `10 ^ 7` (or about 24bits~ of security) possible combinations. Once the correct PIN has been guessed, the pre-shared key is provided to the user. Further, [some implementations](https://sviehb.files.wordpress.com/2011/12/viehboeck_wps.pdf) allow an attacker to guess the PIN in two parts, so it provides only `10 ^ 4  + 10 ^ 3` (or about 14bits~ of security) possible combinations.
+
+#### I don't have any other option! How could it suck less?
+Use some kind of forward secret tunneling to access the device, connect to the tor router device over wireless, using OpenVPN for example. This way even if the WPA is broken, you still have a forward secret tunnel protecting your traffic so that it can't just get passively pwned out of the air.
+
+Alternatively if this isn't an option because the device you're trying to use is utter trash (like an iPhone) then you should change your PSK for every session, make it strong and never ever allow anyone else to connect to the device, use it _only_ for yourself.
+
+Follow the [`PORTAL`](https://github.com/grugq/portal)-like setup, if you can connect to it over Etherenet, and have your outbound connection from the device over Tor be over wireless, then your 
+
+### Transparent Proxying will always be sub-optimal
+It's an option that exists purely because some situations just don't work and this is probably the least sucky way to do it. You should never _prefer_ trasparent proxying. There are a few reasons why.
+
+#### Transparent Proxying lacks context
+It doesn't know what applications are making what requests, at best you could isolate by things like the user who is running the application but imagine a scenario like Tor Browser where all the traffic is coming out of single application to a single proxy port. Tor Browser, because it's been made to work with Tor, is able to use SOCKS5Auth based circuit isolation mechanisms to isolate requests based on the first party domain of the tab the request is associated with. This means no single exit handles _all_ the requests you're making. Tails also makes use a multiple SOCKS ports, each of which will be isolated with different applications configured to use different ports so that they will be isolated.
+
+When you take your whole operating system and stick it behind transparent proxying, everything goes over Tor if it can. Everything that goes over Tor will, by default, use the same circuit. Your operating system updates, your email, your browsing, and fetching information about media you play will all share the same circuit. The exit node could connect all of these things together and ascribe them to a single entity. This means things intended to be anonymous could be linked to things directly linked to your identity, or between psuedonyms. Similarly to this see "Not All Applications Are Fit For Purpose" above.
+
+Further, the set of applications and how they behave can act as a fingerprint that an Exit or potentially a careful observer watching Exit traffic could peice together. This is why doing this without using an operating system with a good anonymity set (e.g. many users using exactly the same setup such that you all have the same fingerprint) will make you at best psuedonymous. This may suit your purposes but if the fingerprint is observed _outside_ of Tor then it may deanonymize you. See "Use It Consistently".
+
+It _should_ only be used as a last resort if there is no other way and it _should_ be used sparingly as possible, _prefer_ to use native SOCKS5 or the torsocks wrapper.
