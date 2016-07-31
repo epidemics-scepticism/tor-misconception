@@ -54,7 +54,7 @@ If you wanted to exclude a certain country from your choice for some perceived g
 ### I suspect this relay is doing bad things, so I excluded it.
 If you think a relay is being bad, instead of adding it to your ExcludeNodes you should report it by emailing bad-relays at lists.torproject.org.
 
-If possible provide the relay's fingerprint and what bad thing it is doing, steps to reproduce the bad behaviour are also very helpful. This will mean the relay will be ejected from the consensus, if found to be behaving badly and protect all users, not just you.
+If possible provide the relay's fingerprint and what bad thing it is doing, steps to reproduce the bad behaviour are also very helpful. This will mean the relay will be ejected from the consensus (if it's found to be behaving badly) and will protect all Tor users, not just you.
 
 If you don't have meaningful evidence that it is doing bad things, this is paranoia. It is irrational and it is harming you.
 
@@ -91,7 +91,9 @@ They'll tell people what timezone you're in, what time you think it is in your t
 
 All of these possible variations, while not all of the examples above are applicable to all applications, create an inconsistent anonymity set. It has a texture, if someone were to run their *(cyber-)*finger over it, it would present bumps and recesses. We don't want that, we want our anonymity set to feel as smooth, homogenous, and indistinguishable as possible to any probing *(cyber-)*fingers.
 
-To this end, we should where possible use as similar as possible a set of tools. This creates a one-size-doesn't-quite-fit-all scenario which causes discomfort but if you're serious about anonymity, this is important.
+Some applications, even some *security* applications still check for and download *unsigned* updates over plaintext. This is not safe in *any* scenario but becomes a more obvious problem on Tor.
+
+To this end we should (where possible) use an as similar as possible set of tools. This creates a one-size-doesn't-quite-fit-all scenario which causes discomfort but if you're serious about anonymity, this is important.
 
 ### Faulty camouflage
 Trying to make Application A look like Application B is folly, for a sufficiently complex application (looking at you, HTTP clients). I see a lot of crawler doing stupid things when crawling onions, like setting their user-agents to be the Tor Browser user-agent (which they invariably forget to update) and little do they know that their _behaviour_ makes them stand out. Do you use a Keep-Alive connection? Which order do you request the resources in? What kinds of content-encoding do you accept? What kinds of content encoding do you accept _in a given context_? These all distinguish Application A from Application B.
@@ -121,13 +123,13 @@ Use some kind of forward secret tunneling to access the device, connect to the t
 
 Alternatively if this isn't an option because the device you're trying to use is utter trash (like an iPhone) then you should change your PSK for every session, make it strong and never ever allow anyone else to connect to the device, use it _only_ for yourself.
 
-Follow the [`PORTAL`](https://github.com/grugq/portal)-like setup, if you can connect to it over Etherenet, and have your outbound connection from the device over Tor be over wireless, then your 
+Follow the [`PORTAL`](https://github.com/grugq/portal)-like setup, if you can connect to it over Etherenet, and have your outbound connection from the device over Tor be over wireless, then your wireless traffic will already be protected before anyone withou access to the device can sniff it, making the wireless cryptography irrelevant.
 
 ### Transparent Proxying will always be sub-optimal
 It's an option that exists purely because some situations just don't work and this is probably the least sucky way to do it. You should never _prefer_ trasparent proxying. There are a few reasons why.
 
 #### Transparent Proxying lacks context
-It doesn't know what applications are making what requests, at best you could isolate by things like the user who is running the application but imagine a scenario like Tor Browser where all the traffic is coming out of single application to a single proxy port. Tor Browser, because it's been made to work with Tor, is able to use SOCKS5Auth based circuit isolation mechanisms to isolate requests based on the first party domain of the tab the request is associated with. This means no single exit handles _all_ the requests you're making. Tails also makes use a multiple SOCKS ports, each of which will be isolated with different applications configured to use different ports so that they will be isolated.
+It doesn't know what applications are making what requests, at best you could isolate by things like the user who is running the application but imagine a scenario like Tor Browser where all the traffic is coming out of single application to a single proxy port. Tor Browser, because it's been made to work with Tor, is able to use SOCKS5Auth based circuit isolation mechanisms to isolate requests based on the first party domain of the tab the request is associated with. This means no single exit handles _all_ the requests you're making. Tails also makes use a multiple SOCKS ports, each of which will be isolated from ach other and used by different applications so they do not share circuits.
 
 When you take your whole operating system and stick it behind transparent proxying, everything goes over Tor if it can. Everything that goes over Tor will, by default, use the same circuit. Your operating system updates, your email, your browsing, and fetching information about media you play will all share the same circuit. The exit node could connect all of these things together and ascribe them to a single entity. This means things intended to be anonymous could be linked to things directly linked to your identity, or between psuedonyms. Similarly to this see "Not All Applications Are Fit For Purpose" above.
 
