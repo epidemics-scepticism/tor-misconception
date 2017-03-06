@@ -3,6 +3,14 @@ An attempt to document commonly believed misconceptions about Tor.
 
 Content will appear here once I have gained sufficient vitriol...
 
+# Disclaimer
+## Know your adversary
+Not all of the situations or recommendations covered in this document apply to all adversaries and inversely following all of the recommendations in this document will not protect you from all adversaries.
+
+This is a set of general recommendations, created as counter-points to common misconceptions about how best to use Tor that I've observed in the wild, talking to users and trying to support and assist users.
+
+You should consider who or what it is you're trying to defend against and what they're capable of. Understanding an adversary's technical capabilities can be difficult to discern for users and is often specific to the user making it difficult, if not impossible, to create sound advice for the general use case. I've tried, where possible, to illustrate what kind of capabilities an adversary would need to exploit the various potential pitfalls but I can't tell you if your adversary actually has that capability.
+
 # VPNs.
 ## Is a VPN more secure because Exits are untrustworthy?
 ### What does a VPN see?
@@ -28,7 +36,7 @@ Well, the Exit can do everything the VPN can do to the traffic but it can't do i
 
 - I connect to Tor over my VPN.
 
-   This is probably fine. It doesn't improve the anonymity provided by Tor but it might create more plausible cover for a local adversary watching your connection.
+   This is probably fine. It doesn't improve the anonymity provided by Tor but it might create more plausible cover for a local adversary watching your connection but it may also put your connection directly into an adversary controlled network and it's protections likely wouldn't stand up to close scrutiny. Careful observation of traffic flow patterns may reveal the kind of traffic that is being sent across the VPN.
 
 ## Indinstinguishability
 ### TCP and IP stack metadata
@@ -39,6 +47,33 @@ By comparison, Tor encapsulates only the stream data of a TCP connection. This m
 This metadata does not constitute a unique fingerprint but it can be used to distinguish between operating systems and even version of operating systems. For an example of a practical application of this, see [lcamtuf's `p0f`](http://lcamtuf.coredump.cx/p0f3/).
 
 Imagine the situation where I can see traffic going into and out of a VPN server, lets say it has multiple users and essentially the inbound and outbound traffic is being mixed in ways that I can't distinguish (although more sophisticated analysis would certainly work, i.e. timing), instead I look at the inbound and outbound packets TCP/IP metadata, the packets coming in are generated on your local system and specific to characteristics of your operating system and setup, the packets that the VPN sends out are _also_ generated on your local system and will carry the same characteristics. As such I can split the set of users going into and out of the mix.
+
+# Is Tor broken or backdoored?
+## Broken
+### Not universally, at least
+It's [acknowledged](https://www.torproject.org/docs/faq.html.en#AttacksOnOnionRouting) that Tor cannot protect you if the adversary can view both ends of your connection, over time they will be able to determine the circuit belongs to you. As such an adversary who can see a large fraction of the network will likely be able to tell, with some level of certainty _(less than 100%)_, which circuits belong to which user.
+
+In at least [2011 the NSA](https://edwardsnowden.com/wp-content/uploads/2013/10/tor-stinks-presentation.pdf) an NSA slide deck indicated that they couldn't target a user for deanonymisation and that with manual analysis they could deanonymous a "very small fraction" of Tor users.
+
+I would be incredibly surprised if the NSA, and other military intelligence organisations, had not made significant improvements in this process during the last 5-6 years, given it's rise in popularity. I don't think they are yet at the level where they can deanonymize all Tor users all of the time, but we can really only speculate.
+
+For most people military intelligence isn't their direct adversary, most people adversaries are certainly not capable of that kind of attack.
+
+### Eve is cheaper than Mallory
+*"Anything that forces Eve to become Mallory is already a win."* - halvarflake
+
+We see that powerful, well funded and well connected adversaries _(read: FBI)_ are still resorting to acting as Mallory to score wins. If they could act as Eve, they would do so because it is cheaper, more predictable and yeilds consistent results.
+
+The FBI is dropping cases against suspects rather than reveal the details of their vector for acting as Mallory. This suggests they have a strong requirement to continue acting as Mallory and are concerned with losing that ability. (Exodus Intel go longer sells to them - ["Brown said Exodus does not work with that agency any more because of this case."](https://motherboard.vice.com/en_us/article/ceo-of-company-behind-tor-browser-exploit)).
+
+This suggests they do not have the potential to act as Eve, at least not in a meaningful way. Instead they must compromise end points rather than the Tor protocol for the time being.
+
+## Backdoored
+### Open Source
+Tor's code is open source, it has been reviewed repeatedly and has been the subject of many academic papers looking for weaknesses in the protocol. I'm not aware of any evidence-based (read: sane) accusal of a backdoor in Tor software.
+
+### Reproducable builds
+Tor Browser is build reproducibly, this means that the software that Tor distributes can be checked to ensure that when the publicly auditable source code is built under specific, inspectable and reproducable conditions it results in *exactly* the binary file that the Tor Project distributes. This ensures the source code maps to the binary file and there is no slight of hand on their part to distribute backdoored binaries.
 
 # ExitNodes, ExcludeNodes and GeoIP.
 ## GeoIP is bullshit.
